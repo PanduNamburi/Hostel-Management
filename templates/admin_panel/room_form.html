@@ -1,0 +1,96 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{% if room %}Edit Room{% else %}Add New Room{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="py-6">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            {% if room %}Edit Room{% else %}Add New Room{% endif %}
+        </h1>
+    </div>
+
+    <div class="mt-8">
+        <form method="post" class="space-y-8 divide-y divide-gray-200">
+            {% csrf_token %}
+            
+            <div class="space-y-8 divide-y divide-gray-200">
+                <div>
+                    <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <div class="sm:col-span-3">
+                            <label for="room_number" class="block text-sm font-medium text-gray-700">Room Number</label>
+                            <div class="mt-1">
+                                <input type="text" name="room_number" id="room_number" value="{{ room.room_number|default:'' }}" required
+                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label for="room_type" class="block text-sm font-medium text-gray-700">Room Type</label>
+                            <div class="mt-1">
+                                <select name="room_type" id="room_type" required
+                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    <option value="">Select a type</option>
+                                    <option value="SINGLE" {% if room.room_type == 'SINGLE' %}selected{% endif %}>Single Occupancy</option>
+                                    <option value="DOUBLE" {% if room.room_type == 'DOUBLE' %}selected{% endif %}>Double Occupancy</option>
+                                    <option value="TRIPLE" {% if room.room_type == 'TRIPLE' %}selected{% endif %}>Triple Occupancy</option>
+                                    <option value="QUAD" {% if room.room_type == 'QUAD' %}selected{% endif %}>Quad Occupancy</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label for="capacity" class="block text-sm font-medium text-gray-700">Capacity</label>
+                            <div class="mt-1">
+                                <input type="number" name="capacity" id="capacity" value="{{ room.capacity|default:'' }}" required min="1"
+                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label for="floor" class="block text-sm font-medium text-gray-700">Floor</label>
+                            <div class="mt-1">
+                                <input type="number" name="floor" id="floor" value="{{ room.floor|default:'' }}" required min="1"
+                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label for="block" class="block text-sm font-medium text-gray-700">Block</label>
+                            <div class="mt-1">
+                                <input type="text" name="block" id="block" value="{{ room.block|default:'' }}" required
+                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+
+                        {% if room %}
+                        <div class="sm:col-span-3">
+                            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                            <div class="mt-1">
+                                <select name="status" id="status" required
+                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    <option value="AVAILABLE" {% if room.status == 'AVAILABLE' %}selected{% endif %}>Available</option>
+                                    <option value="OCCUPIED" {% if room.status == 'OCCUPIED' %}selected{% endif %}>Occupied</option>
+                                    <option value="MAINTENANCE" {% if room.status == 'MAINTENANCE' %}selected{% endif %}>Under Maintenance</option>
+                                </select>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-5">
+                <div class="flex justify-end">
+                    <a href="{% url 'admin_panel:room_list' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Cancel
+                    </a>
+                    <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        {% if room %}Save Changes{% else %}Create Room{% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

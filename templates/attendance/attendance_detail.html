@@ -1,0 +1,52 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Attendance Detail{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-start md:justify-between relative">
+    {% if overall_attendance_percentage is not None %}
+    <div class="absolute top-0 right-0 mt-4 mr-6 z-10">
+        <span class="block text-sm text-gray-500 dark:text-gray-300 text-center mb-1">Overall Attendance</span>
+        <span class="inline-block rounded-full bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-200 px-6 py-3 text-xl font-bold shadow-lg border-2 border-primary-300 dark:border-primary-700">
+            {{ overall_attendance_percentage }}%
+        </span>
+    </div>
+    {% endif %}
+    <div class="max-w-2xl">
+        <h1 class="text-2xl font-bold mb-4">Attendance Detail</h1>
+        <ul class="divide-y divide-gray-200">
+            <li class="py-2"><strong>Student:</strong> {{ attendance.student.get_full_name|default:attendance.student.username }}</li>
+            <li class="py-2"><strong>Date:</strong> {{ attendance.date }}</li>
+            <li class="py-2"><strong>Status:</strong> 
+                {% if attendance.is_present %}
+                    <span class="text-green-600 font-semibold">Present</span>
+                {% else %}
+                    <span class="text-red-600 font-semibold">Absent</span>
+                {% endif %}
+            </li>
+            <li class="py-2"><strong>Periods Attended:</strong> {{ attendance.present_periods }}</li>
+            <li class="py-2"><strong>Periods Absent:</strong> {{ attendance.absent_periods }}</li>
+            <li class="py-2"><strong>Marked By:</strong> {{ attendance.marked_by.get_full_name|default:attendance.marked_by.username }}</li>
+            <li class="py-2"><strong>Marked At:</strong> {{ attendance.marked_at }}</li>
+            <li class="py-2"><strong>Notes:</strong> {{ attendance.notes|default:'-' }}</li>
+        </ul>
+        {% if can_edit %}
+        <div class="mt-4">
+            <a href="{% url 'attendance:edit' attendance.id %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Edit Attendance</a>
+        </div>
+        {% endif %}
+    </div>
+    <div class="mt-8 md:mt-0 md:ml-8 flex-shrink-0 flex flex-col items-center">
+        <div class="rounded-lg shadow-lg px-8 py-6 bg-white dark:bg-gray-800 flex flex-col items-center">
+            <span class="text-lg font-semibold text-gray-500 dark:text-gray-300 mb-2">Attendance %</span>
+            <div>
+                <span class="inline-block rounded-full {% if attendance.attendance_percentage < 75 %}bg-red-600{% else %}bg-green-600{% endif %} text-white px-2 py-1">
+                    {{ attendance.attendance_percentage }}%
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

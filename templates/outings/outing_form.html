@@ -1,0 +1,87 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{{ title }}</h1>
+
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+            <div class="p-4 {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %} rounded-md">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label for="{{ form.destination.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Destination
+                </label>
+                <div class="mt-1">
+                    {{ form.destination }}
+                </div>
+                {% if form.destination.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ form.destination.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.purpose.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Purpose
+                </label>
+                <div class="mt-1">
+                    {{ form.purpose }}
+                </div>
+                {% if form.purpose.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ form.purpose.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.start_time.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Start Time
+                </label>
+                <div class="mt-1">
+                    {{ form.start_time }}
+                </div>
+                {% if form.start_time.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ form.start_time.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.end_time.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    End Time
+                </label>
+                <div class="mt-1">
+                    {{ form.end_time }}
+                </div>
+                {% if form.end_time.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ form.end_time.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <label for="id_parent_email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Parent Email</label>
+                {{ form.parent_email }}
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <a href="{% url 'outings:list' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

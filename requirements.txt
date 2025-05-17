@@ -1,0 +1,9 @@
+asgiref==3.8.1
+Django==4.2.21
+sqlparse==0.5.3
+typing_extensions==4.13.2
+django-tailwind==4.0.1
+django-crispy-forms==2.4
+channels==4.2.2
+djangorestframework==3.16.0
+Pillow==11.2.1

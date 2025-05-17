@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true', mobileMenu: false }" 
+      x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val))" 
+      :class="{ 'dark': darkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hostel Management{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0f0fe',
+                            200: '#b9e0fe',
+                            300: '#7cc9fd',
+                            400: '#36b3fa',
+                            500: '#0c98e9',
+                            600: '#0279c7',
+                            700: '#0262a2',
+                            800: '#065286',
+                            900: '#0a4570',
+                        },
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'system-ui', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        card: '0 8px 20px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 12px 24px rgba(0, 0, 0, 0.12)',
+                    },
+                    screens: {
+                        'xs': '475px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap">
+    
+    <!-- Custom CSS -->
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            background: #2563eb;
+            border-radius: 2px;
+            width: 0;
+            transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        .nav-link:hover::after, .nav-link:focus::after {
+            width: 100%;
+        }
+
+        .card-transform {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-transform:hover {
+            transform: translateY(-5px);
+        }
+        
+        /* Make scrollbar thinner on mobile */
+        @media (max-width: 640px) {
+            ::-webkit-scrollbar {
+                width: 3px;
+                height: 3px;
+            }
+            
+            ::-webkit-scrollbar-thumb {
+                background: #9ca3af;
+                border-radius: 3px;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col font-sans text-gray-800 dark:text-gray-200">
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 md:h-20 items-center">
+                <!-- Logo -->
+                <a href="{% url 'core:home' %}" class="flex items-center">
+                    <svg class="h-8 w-8 text-primary-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span class="ml-2 text-xl font-display font-bold text-primary-600 hidden sm:block">StayInn</span>
+                </a>
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex md:items-center md:space-x-4 lg:space-x-8">
+                    {% if user.is_authenticated %}
+                        {% if user.role == 'student' %}
+                            <a href="{% url 'outings:create' %}" class="nav-link flex items-center text-gray-700 dark:text-gray-300 hover:text-primary-600 px-2 py-2 text-sm font-medium transition-all">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                Request Pass
+                            </a>
+                            <a href="{% url 'complaints:create' %}" class="nav-link flex items-center text-gray-700 dark:text-gray-300 hover:text-primary-600 px-2 py-2 text-sm font-medium transition-all">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /></svg>
+                                Submit Complaint
+                            </a>
+                            <a href="{% url 'fees:make_payment' %}" class="nav-link flex items-center text-gray-700 dark:text-gray-300 hover:text-primary-600 px-2 py-2 text-sm font-medium transition-all">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 8c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
+                                Make a Payment
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'outings:list' %}" class="nav-link flex items-center text-gray-700 dark:text-gray-300 hover:text-primary-600 px-2 py-2 text-sm font-medium transition-all">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                            Outings
+                        </a>
+                        <a href="{% url 'complaints:list' %}" class="nav-link flex items-center text-gray-700 dark:text-gray-300 hover:text-primary-600 px-2 py-2 text-sm font-medium transition-all">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /></svg>
+                            Complaints
+                        </a>
+                        {% if user.role|lower == 'admin' or user.role|lower == 'warden' %}
+                            <a href="{% url 'attendance:student_list' %}" class="nav-link flex items-center text-gray-700 dark:text-gray-300 hover:text-primary-600 px-2 py-2 text-sm font-medium transition-all">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></rect><line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line><line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line><line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line></svg>
+                                Attendance
+                            </a>
+                        {% endif %}
+                        {% if user.role|lower == 'student' %}
+                            <a href="{% url 'attendance:list' %}" class="nav-link flex items-center text-gray-700 dark:text-gray-300 hover:text-primary-600 px-2 py-2 text-sm font-medium transition-all">
+                                <!-- Calendar-check icon -->
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 2v4m8-4v4M3 10h18M9 16l2 2 4-4"/></svg>
+                                My Attendance
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'fees:student_fee_status' %}" class="nav-link flex items-center text-gray-700 dark:text-gray-300 hover:text-primary-600 px-2 py-2 text-sm font-medium transition-all">
+                            <!-- Credit card icon -->
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" ry="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 10h20"/></svg>
+                            Fees
+                        </a>
+                    {% endif %}
+                </div>
+                <!-- Right: Dark mode, user menu, auth -->
+                <div class="flex items-center space-x-2">
+                    <!-- Dark mode toggle -->
+                    <button @click="darkMode = !darkMode" class="p-2 rounded-full bg-primary-100 hover:bg-primary-200 text-primary-600 transition-all">
+                        <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                        <svg x-show="darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </button>
+                    {% if user.is_authenticated %}
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="flex items-center focus:outline-none" id="user-menu" aria-haspopup="true">
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" alt="Profile" class="w-8 h-8 rounded-full object-cover border-2 border-primary-300 dark:border-primary-700">
+                                {% else %}
+                                    <span class="inline-block w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-800 text-primary-600 dark:text-primary-300 flex items-center justify-center font-bold">
+                                        {{ user.get_full_name|default:user.username|slice:":1"|upper }}
+                                    </span>
+                                {% endif %}
+                            </button>
+                            <div x-show="open" @click.away="open = false" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
+                                <div class="py-1">
+                                    <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-700 transition-all" role="menuitem">View Profile</a>
+                                    <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-700 transition-all" role="menuitem">Logout</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-all shadow-sm hover:shadow-md">Login</a>
+                        <a href="{% url 'accounts:register' %}" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium ml-2 transition-all shadow-sm hover:shadow-md">Register</a>
+                    {% endif %}
+                    <!-- Hamburger for mobile -->
+                    <button @click="mobileMenu = !mobileMenu" type="button" class="md:hidden p-2 rounded-md text-primary-600 hover:bg-primary-100 focus:outline-none ml-2">
+                        <svg x-show="!mobileMenu" class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                        <svg x-show="mobileMenu" class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile menu -->
+            <div x-show="mobileMenu" class="md:hidden bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 py-2 mt-2 rounded-b-lg">
+                {% if user.is_authenticated %}
+                    {% if user.role == 'student' %}
+                        <a href="{% url 'outings:create' %}" class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-700 transition-all">Request Pass</a>
+                        <a href="{% url 'complaints:create' %}" class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-700 transition-all">Submit Complaint</a>
+                        <a href="{% url 'fees:make_payment' %}" class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-700 transition-all">Make a Payment</a>
+                    {% endif %}
+                    <a href="{% url 'outings:list' %}" class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-700 transition-all">Outings</a>
+                    <a href="{% url 'complaints:list' %}" class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-700 transition-all">Complaints</a>
+                    {% if user.role|lower == 'admin' or user.role|lower == 'warden' %}
+                        <a href="{% url 'attendance:student_list' %}" class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-700 transition-all">Attendance</a>
+                    {% endif %}
+                    {% if user.role|lower == 'student' %}
+                        <a href="{% url 'attendance:list' %}" class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-700 transition-all">My Attendance</a>
+                    {% endif %}
+                    <a href="{% url 'fees:student_fee_status' %}" class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-700 transition-all">Fees</a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="block px-4 py-2 text-base font-medium text-primary-600 hover:bg-primary-50 transition-all">Login</a>
+                    <a href="{% url 'accounts:register' %}" class="block px-4 py-2 text-base font-medium text-primary-600 hover:bg-primary-50 transition-all">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+            <div class="p-4 {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %} rounded-md">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 animate-fade-in">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Compact Footer -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-3 md:space-y-0">
+                <div>
+                    <div class="flex items-center">
+                        <svg class="h-8 w-8 text-primary-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <span class="ml-2 text-lg font-display font-bold text-primary-600">StayInn</span>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-md">
+                        Making hostel life simpler and more efficient.
+                    </p>
+                </div>
+                <div class="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-8">
+                    <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 text-sm">Help Center</a>
+                    <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 text-sm">Privacy Policy</a>
+                    <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 text-sm">Terms of Service</a>
+                    <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 text-sm">Contact Us</a>
+                </div>
+            </div>
+            <div class="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                <p class="text-center text-sm text-gray-500 dark:text-gray-400">
+                    &copy; {% now "Y" %} StayInn Hostel Management. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to top button -->
+    <button id="scrollToTop" 
+            x-data="{ show: false }"
+            x-init="window.addEventListener('scroll', () => { show = window.scrollY > 300 })"
+            x-show="show"
+            @click="window.scrollTo({top: 0, behavior: 'smooth'})"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-y-2"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0"
+            x-transition:leave-end="opacity-0 transform translate-y-2"
+            class="fixed right-8 bottom-8 bg-primary-600 hover:bg-primary-700 text-white p-3 rounded-full shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+    </button>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

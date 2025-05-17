@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">My Outing Requests</h3>
+                    <div class="text-center mt-2">
+                        <span class="text-lg font-semibold">Overall Attendance Percentage: </span>
+                        <span class="text-lg font-bold text-primary-600">{{ overall_attendance_percentage }}%</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if outing_requests %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Out Time</th>
+                                        <th>In Time</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Response</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for request in outing_requests %}
+                                        <tr>
+                                            <td>{{ request.date }}</td>
+                                            <td>{{ request.out_time }}</td>
+                                            <td>{{ request.in_time }}</td>
+                                            <td>{{ request.reason }}</td>
+                                            <td>
+                                                {% if request.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif request.status == 'approved' %}
+                                                    <span class="badge bg-success">Approved</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Rejected</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if request.status == 'rejected' and request.rejection_reason %}
+                                                    {{ request.rejection_reason }}
+                                                {% elif request.status == 'approved' %}
+                                                    Approved by {{ request.approved_by.get_full_name }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center">
+                            <p>No outing requests found.</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="text-center mt-3">
+                        <a href="{% url 'submit_outing' %}" class="btn btn-primary">New Outing Request</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
