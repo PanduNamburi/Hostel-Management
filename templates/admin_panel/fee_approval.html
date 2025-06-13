@@ -1,0 +1,57 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<h2>Fee Transaction Approval</h2>
+<p>Approve or reject pending student fee transactions below.</p>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+
+<div class="overflow-x-auto">
+{% if pending_payments %}
+<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 mt-4">
+  <thead class="bg-gray-50 dark:bg-gray-700">
+    <tr>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Student</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Transaction ID</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Payment Date</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Proof</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+    </tr>
+  </thead>
+  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+    {% for payment in pending_payments %}
+    <tr>
+      <td class="px-6 py-4 whitespace-nowrap">{{ payment.fee_record.student.get_full_name|default:payment.fee_record.student.username }}</td>
+      <td class="px-6 py-4 whitespace-nowrap font-bold text-green-700 dark:text-green-300">₹{{ payment.amount }}</td>
+      <td class="px-6 py-4 whitespace-nowrap">{{ payment.transaction_id }}</td>
+      <td class="px-6 py-4 whitespace-nowrap">{{ payment.payment_date }}</td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        {% if payment.payment_proof %}
+          <a href="{{ payment.payment_proof.url }}" target="_blank" class="text-blue-600 hover:underline">View</a>
+        {% else %}-{% endif %}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap flex flex-col sm:flex-row gap-2">
+        <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to approve this payment?');">
+          {% csrf_token %}
+          <input type="hidden" name="payment_id" value="{{ payment.id }}">
+          <button type="submit" name="action" value="approve" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Approve</button>
+        </form>
+        <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to reject this payment?');">
+          {% csrf_token %}
+          <input type="hidden" name="payment_id" value="{{ payment.id }}">
+          <button type="submit" name="action" value="reject" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 ml-2">Reject</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="mt-4">No pending fee transactions.</p>
+{% endif %}
+</div>
+{% endblock %} 

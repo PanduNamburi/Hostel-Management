@@ -1,0 +1,52 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Security Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="py-6">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Security Dashboard</h1>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Welcome, {{ user.username }}!</p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Quick Actions -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Quick Actions</h3>
+                <div class="mt-4 space-y-4">
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        Verify Outing Pass
+                    </a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        Record Entry/Exit
+                    </a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        Report Incident
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Activities -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Today's Activities</h3>
+                <div class="mt-4 space-y-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">No activities recorded today</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Incidents -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Recent Incidents</h3>
+                <div class="mt-4 space-y-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">No recent incidents</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

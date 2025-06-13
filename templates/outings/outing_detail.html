@@ -1,0 +1,126 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Outing Details{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+            <div class="p-4 {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %} rounded-md">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                        {{ outing.destination }}
+                    </h3>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                        {% if outing.status == 'pending' %}bg-yellow-100 text-yellow-800
+                        {% elif outing.status == 'approved' %}bg-blue-100 text-blue-800
+                        {% elif outing.status == 'completed' %}bg-green-100 text-green-800
+                        {% else %}bg-red-100 text-red-800{% endif %}">
+                        {{ outing.get_status_display }}
+                    </span>
+                </div>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+                    Submitted by {{ outing.student.get_full_name|default:outing.student.username }}
+                </p>
+            </div>
+            <div class="border-t border-gray-200 dark:border-gray-700">
+                <dl>
+                    <div class="bg-gray-50 dark:bg-gray-700 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">
+                            Purpose
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                            {{ outing.purpose }}
+                        </dd>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">
+                            Start Time
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                            {{ outing.start_time|date:"F j, Y, g:i a" }}
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">
+                            End Time
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                            {{ outing.end_time|date:"F j, Y, g:i a" }}
+                        </dd>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">
+                            Submitted
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                            {{ outing.created_at|date:"F j, Y, g:i a" }}
+                        </dd>
+                    </div>
+                    {% if outing.approved_by %}
+                    <div class="bg-gray-50 dark:bg-gray-700 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">
+                            Approved By
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                            {{ outing.approved_by.get_full_name|default:outing.approved_by.username }}
+                        </dd>
+                    </div>
+                    {% endif %}
+                    {% if outing.rejection_reason %}
+                    <div class="bg-white dark:bg-gray-800 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">
+                            Rejection Reason
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                            {{ outing.rejection_reason }}
+                        </dd>
+                    </div>
+                    {% endif %}
+                    {% if outing.actual_return_time %}
+                    <div class="bg-gray-50 dark:bg-gray-700 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">
+                            Actual Return Time
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                            {{ outing.actual_return_time|date:"F j, Y, g:i a" }}
+                        </dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-end space-x-4">
+            <a href="{% url 'outings:list' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded">
+                Back to List
+            </a>
+            {% if is_warden and outing.status == 'pending' %}
+            <a href="{% url 'outings:approve' outing.pk %}" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded">
+                Process Request
+            </a>
+            {% endif %}
+            {% if outing.student == request.user and outing.status == 'pending' %}
+            <a href="{% url 'outings:update' outing.pk %}" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded">
+                Update Request
+            </a>
+            {% endif %}
+            {% if outing.status == 'approved' and not outing.actual_return_time %}
+            <a href="{% url 'outings:return' outing.pk %}" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded">
+                Mark as Returned
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

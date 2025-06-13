@@ -1,0 +1,76 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Mark Outing as Returned{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Mark Outing as Returned</h1>
+
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+            <div class="p-4 {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %} rounded-md">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                    {{ outing.destination }}
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+                    Submitted by {{ outing.student.get_full_name|default:outing.student.username }}
+                </p>
+            </div>
+            <div class="border-t border-gray-200 dark:border-gray-700">
+                <dl>
+                    <div class="bg-gray-50 dark:bg-gray-700 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">
+                            Start Time
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                            {{ outing.start_time|date:"F j, Y, g:i a" }}
+                        </dd>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">
+                            Expected Return Time
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                            {{ outing.end_time|date:"F j, Y, g:i a" }}
+                        </dd>
+                    </div>
+                    {% if outing.is_overdue %}
+                    <div class="bg-red-50 dark:bg-red-900 px-4 py-5">
+                        <p class="text-sm font-medium text-red-800 dark:text-red-200">
+                            This outing is overdue. The expected return time has passed.
+                        </p>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                By clicking "Mark as Returned", you confirm that you have returned from your outing. The current time will be recorded as your return time.
+            </p>
+
+            <div class="flex justify-end space-x-4">
+                <a href="{% url 'outings:detail' outing.pk %}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded">
+                    Mark as Returned
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 
