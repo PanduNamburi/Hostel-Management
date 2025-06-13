@@ -102,14 +102,11 @@ ASGI_APPLICATION = 'hostel_management.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQL_DATABASE', 'Hostel_Management'),
-        'USER': os.environ.get('MYSQL_USER', 'Hostel_Management'),
-        'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'sIDDUT1@'),
-        'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
-        'PORT': os.environ.get('MYSQL_PORT', '3306'),
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
+        'NAME': os.environ.get('Hostel_Management'),
+        'USER': os.environ.get('Hostel_Management'),
+        'PASSWORD': os.environ.get('sIDDUT1@'),
+        'HOST': os.environ.get('localhost'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
     }
 }
 
