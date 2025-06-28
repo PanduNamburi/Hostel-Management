@@ -45,7 +45,20 @@
             <div class="p-5">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Recent Activities</h3>
                 <div class="mt-4 space-y-4">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">No recent activities</p>
+                    {% if recent_activities and recent_activities|length > 0 %}
+                        <ul class="space-y-2">
+                            {% for activity in recent_activities %}
+                                <li class="text-sm text-gray-700 dark:text-gray-300">
+                                    <span class="font-semibold">{{ activity.user.get_full_name|default:activity.user.username }}</span>:
+                                    {{ activity.action }}
+                                    {% if activity.details %}- <span class="text-gray-500 dark:text-gray-400">{{ activity.details }}</span>{% endif %}
+                                    <span class="block text-xs text-gray-400 mt-1">{{ activity.timestamp|date:"M d, Y H:i" }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-sm text-gray-600 dark:text-gray-400">No recent activities</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -57,8 +70,11 @@
                 <div class="mt-4 space-y-4">
                     <p class="text-sm text-gray-600 dark:text-gray-400">No new notifications</p>
                 </div>
+                <a href="{% url 'fees:create_notification' %}" class="btn btn-primary mt-2">Create Notification</a>
             </div>
         </div>
     </div>
 </div>
+
+<a href="{% url 'admin_panel:log_activity' %}">Log Activity</a>
 {% endblock %} 

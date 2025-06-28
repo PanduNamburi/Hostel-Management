@@ -15,4 +15,5 @@ urlpatterns = [
     path('outings/', views.outing_approval, name='outing_approval'),
     path('complaints/', views.complaints_management, name='complaints_management'),
     path('fees/', views.fee_approval, name='fee_approval'),
+    path('log-activity/', views.log_activity, name='log_activity'),
 ] 

@@ -29,7 +29,7 @@ urlpatterns = [
     path('complaints/', include('complaints.urls')),
     path('outings/', include('outings.urls')),
     path('attendance/', include('attendance.urls')),
-    path('fees/', include(('fees.urls', 'fees'), namespace='fees')),
+    path('fees/', include('fees.urls', namespace='fees')),
     path('rooms/', include('rooms.urls', namespace='rooms')),
     path('', include('core.urls')),  # We'll create this later
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

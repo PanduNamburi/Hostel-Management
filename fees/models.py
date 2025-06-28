@@ -59,6 +59,7 @@ class Notification(models.Model):
     OUTING_REQUESTED = 'outing_requested'
     OUTING_APPROVED = 'outing_approved'
     OUTING_REJECTED = 'outing_rejected'
+    CUSTOM = 'custom'
     
     NOTIFICATION_TYPES = [
         (PAYMENT_RECEIVED, 'Payment Received'),
@@ -67,6 +68,7 @@ class Notification(models.Model):
         (OUTING_REQUESTED, 'Outing Requested'),
         (OUTING_APPROVED, 'Outing Approved'),
         (OUTING_REJECTED, 'Outing Rejected'),
+        (CUSTOM, 'Custom Notification'),
     ]
 
     notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
@@ -76,6 +78,8 @@ class Notification(models.Model):
     message = models.TextField()
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='received_notifications')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_notifications')
 
     class Meta:
         ordering = ['-created_at']

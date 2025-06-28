@@ -6,9 +6,12 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.urls import reverse
 from outings.models import OutingRequest
-from fees.models import FeePayment
+from fees.models import FeePayment, Notification
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db import models
+from .forms import LogActionForm
+from .models import ActivityLog
 
 User = get_user_model()
 
@@ -22,7 +25,9 @@ def is_admin_or_warden(user):
 def dashboard(request):
     if not request.user.is_admin:
         return redirect('core:home')
-    return render(request, 'admin_panel/dashboard.html')
+    # Fetch the 5 most recent activities
+    recent_activities = ActivityLog.objects.select_related('user').order_by('-timestamp')[:5]
+    return render(request, 'admin_panel/dashboard.html', {'recent_activities': recent_activities})
 
 @login_required
 @user_passes_test(is_admin)
@@ -95,42 +100,47 @@ def allocate_room(request):
     if request.method == 'POST':
         student_id = request.POST.get('student')
         room_id = request.POST.get('room')
-        allocated_from = request.POST.get('allocated_from')
-        allocated_till = request.POST.get('allocated_till')
         
         try:
             student = User.objects.get(id=student_id)
             room = Room.objects.get(id=room_id)
             
-            # Check if room has capacity
+            # Check if room is available
             if room.current_occupancy >= room.capacity:
-                messages.error(request, 'Room is already at full capacity!')
-                return redirect('admin_panel:room_list')
+                messages.error(request, 'Selected room is already full.')
+                return redirect('allocate_room')
             
-            # Create allocation
-            allocation = RoomAllocation.objects.create(
+            # Check if student already has a room
+            existing_allocation = RoomAllocation.objects.filter(student=student, is_active=True).first()
+            if existing_allocation:
+                messages.error(request, f'Student already has a room allocated: {existing_allocation.room.room_number}')
+                return redirect('allocate_room')
+            
+            # Create room allocation
+            RoomAllocation.objects.create(
                 student=student,
                 room=room,
-                allocated_from=allocated_from,
-                allocated_till=allocated_till
+                allocated_by=request.user
             )
             
             # Update room occupancy
             room.current_occupancy += 1
-            if room.current_occupancy >= room.capacity:
-                room.status = 'OCCUPIED'
             room.save()
             
-            messages.success(request, 'Room allocated successfully!')
-            return redirect('admin_panel:room_detail', room_id=room.id)
-        except Exception as e:
-            messages.error(request, f'Error allocating room: {str(e)}')
+            messages.success(request, f'Room {room.room_number} allocated to {student.get_full_name() or student.username}')
+            return redirect('room_list')
+            
+        except (User.DoesNotExist, Room.DoesNotExist):
+            messages.error(request, 'Invalid student or room selected.')
+            return redirect('allocate_room')
     
-    students = User.objects.filter(is_student=True)
-    rooms = Room.objects.filter(status='AVAILABLE')
+    # Get available rooms and students
+    available_rooms = Room.objects.filter(current_occupancy__lt=models.F('capacity'))
+    students = User.objects.filter(role='student')
+    
     return render(request, 'admin_panel/allocate_room.html', {
-        'students': students,
-        'rooms': rooms
+        'rooms': available_rooms,
+        'students': students
     })
 
 @login_required
@@ -252,3 +262,45 @@ def fee_approval(request):
     return render(request, 'admin_panel/fee_approval.html', {
         'pending_payments': pending_payments
     })
+
+@login_required
+@user_passes_test(lambda u: u.role in ['admin', 'warden'] or u.is_superuser)
+def log_activity(request):
+    if request.method == 'POST':
+        form = LogActionForm(request.POST)
+        if form.is_valid():
+            action_type = form.cleaned_data['action_type']
+            action = form.cleaned_data['action']
+            details = form.cleaned_data['details']
+            recipient = form.cleaned_data['recipient']
+
+            if action_type == 'activity':
+                ActivityLog.objects.create(
+                    user=request.user,
+                    action=action,
+                    details=details
+                )
+                print(f"Activity logged by {request.user.username}: {action}")
+            elif action_type == 'notification':
+                if recipient:
+                    Notification.objects.create(
+                        notification_type=Notification.CUSTOM,
+                        message=details,
+                        recipient=recipient,
+                        created_by=request.user
+                    )
+                    print(f"Notification created for {recipient.username}")
+                else:
+                    students = User.objects.filter(role='student')
+                    for student in students:
+                        Notification.objects.create(
+                            notification_type=Notification.CUSTOM,
+                            message=details,
+                            recipient=student,
+                            created_by=request.user
+                        )
+                        print(f"Notification created for {student.username}")
+            return redirect('admin_panel:dashboard')
+    else:
+        form = LogActionForm()
+    return render(request, 'admin_panel/log_activity.html', {'form': form})

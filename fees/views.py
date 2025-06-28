@@ -5,9 +5,16 @@ from .forms import FeeRecordForm
 from django.db import models
 from django.core.mail import send_mail
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 def is_warden(user):
     return user.is_authenticated and user.role == 'warden'
+
+def is_admin(user):
+    return user.is_authenticated and (user.is_superuser or user.role == 'admin')
 
 @login_required
 @user_passes_test(is_warden)
@@ -90,3 +97,54 @@ def make_payment(request):
         else:
             message = "No unpaid fee record found."
     return render(request, 'fees/make_payment.html', {'payment_details': payment_details, 'message': message})
+
+@login_required
+@user_passes_test(lambda u: is_warden(u) or is_admin(u))
+def create_notification(request):
+    if request.method == 'POST':
+        message = request.POST.get('message')
+        recipient_id = request.POST.get('recipient')
+        
+        if not message:
+            messages.error(request, 'Message is required.')
+            return redirect('create_notification')
+        
+        try:
+            if recipient_id:
+                recipient = User.objects.get(id=recipient_id)
+                Notification.objects.create(
+                    notification_type=Notification.CUSTOM,
+                    message=message,
+                    recipient=recipient,
+                    created_by=request.user
+                )
+                messages.success(request, f'Notification sent to {recipient.get_full_name() or recipient.username}')
+            else:
+                # Send to all students
+                students = User.objects.filter(role='student')
+                for student in students:
+                    Notification.objects.create(
+                        notification_type=Notification.CUSTOM,
+                        message=message,
+                        recipient=student,
+                        created_by=request.user
+                    )
+                messages.success(request, 'Notification sent to all students')
+            
+            return redirect('notification_list')
+        except User.DoesNotExist:
+            messages.error(request, 'Selected recipient does not exist.')
+            return redirect('create_notification')
+    
+    students = User.objects.filter(role='student')
+    return render(request, 'fees/create_notification.html', {
+        'students': students
+    })
+
+@login_required
+@user_passes_test(lambda u: is_warden(u) or is_admin(u))
+def notification_list(request):
+    notifications = Notification.objects.filter(created_by=request.user).order_by('-created_at')
+    return render(request, 'fees/notification_list.html', {
+        'notifications': notifications
+    })

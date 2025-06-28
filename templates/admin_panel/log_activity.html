@@ -1,0 +1,55 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">Log Activity / Send Notification</h1>
+        <form method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" id="log-action-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="mb-4">
+                {{ form.action_type.label_tag }}<br>
+                {{ form.action_type }}
+            </div>
+            <div class="mb-4" id="action-field">
+                {{ form.action.label_tag }}
+                {{ form.action }}
+                {{ form.action.errors }}
+            </div>
+            <div class="mb-4" id="details-field">
+                {{ form.details.label_tag }}
+                {{ form.details }}
+                {{ form.details.errors }}
+            </div>
+            <div class="mb-4" id="recipient-field" style="display:none;">
+                {{ form.recipient.label_tag }}
+                {{ form.recipient }}
+                {{ form.recipient.errors }}
+            </div>
+            <div class="flex items-center justify-between mt-4">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Submit
+                </button>
+                <a href="{% url 'admin_panel:dashboard' %}" class="text-blue-500 hover:text-blue-700">Back to Dashboard</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    // Show/hide fields based on action_type
+    document.addEventListener('DOMContentLoaded', function() {
+        function toggleFields() {
+            var actionType = document.querySelector('input[name="action_type"]:checked').value;
+            document.getElementById('action-field').style.display = (actionType === 'activity') ? '' : 'none';
+            document.getElementById('recipient-field').style.display = (actionType === 'notification') ? '' : 'none';
+            document.getElementById('details-field').querySelector('label').textContent = (actionType === 'notification') ? 'Message' : 'Details';
+        }
+        var radios = document.querySelectorAll('input[name="action_type"]');
+        radios.forEach(function(radio) {
+            radio.addEventListener('change', toggleFields);
+        });
+        toggleFields();
+    });
+</script>
+{% endblock %} 
