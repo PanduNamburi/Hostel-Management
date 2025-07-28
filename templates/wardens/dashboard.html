@@ -1,0 +1,52 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Warden Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="py-6">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Warden Dashboard</h1>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Welcome, {{ user.username }}!</p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Quick Actions -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Quick Actions</h3>
+                <div class="mt-4 space-y-4">
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        Review Outing Requests
+                    </a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        Handle Complaints
+                    </a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        Manage Attendance
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Pending Requests</h3>
+                <div class="mt-4 space-y-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">No pending requests</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Recent Activities</h3>
+                <div class="mt-4 space-y-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">No recent activities</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

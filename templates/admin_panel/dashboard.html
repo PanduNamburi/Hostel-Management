@@ -1,0 +1,80 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="py-6">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Welcome, {{ user.username }}!</p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Quick Actions -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Quick Actions</h3>
+                <div class="mt-4 space-y-4">
+                    <a href="{% url 'admin_panel:room_list' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        Manage Rooms
+                    </a>
+                    <a href="{% url 'admin_panel:allocate_room' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        Allocate Room
+                    </a>
+                    <a href="{% url 'admin_panel:attendance_management' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        Attendance Management
+                    </a>
+                    <a href="{% url 'admin_panel:outing_approval' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        Outing Approval
+                    </a>
+                    <a href="{% url 'admin_panel:complaints_management' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        Complaints Management
+                    </a>
+                    <a href="{% url 'admin_panel:fee_approval' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        Fee Transaction Approval
+                    </a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                        View Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Recent Activities</h3>
+                <div class="mt-4 space-y-4">
+                    {% if recent_activities and recent_activities|length > 0 %}
+                        <ul class="space-y-2">
+                            {% for activity in recent_activities %}
+                                <li class="text-sm text-gray-700 dark:text-gray-300">
+                                    <span class="font-semibold">{{ activity.user.get_full_name|default:activity.user.username }}</span>:
+                                    {{ activity.action }}
+                                    {% if activity.details %}- <span class="text-gray-500 dark:text-gray-400">{{ activity.details }}</span>{% endif %}
+                                    <span class="block text-xs text-gray-400 mt-1">{{ activity.timestamp|date:"M d, Y H:i" }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-sm text-gray-600 dark:text-gray-400">No recent activities</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Notifications</h3>
+                <div class="mt-4 space-y-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">No new notifications</p>
+                </div>
+                <a href="{% url 'fees:create_notification' %}" class="btn btn-primary mt-2">Create Notification</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a href="{% url 'admin_panel:log_activity' %}">Log Activity</a>
+{% endblock %} 
