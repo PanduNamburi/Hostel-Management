@@ -1,77 +1,70 @@
-# Hostel Management System
+# StayInn | Premium Hostel Management Intelligence
 
-A comprehensive hostel management system built with Django and modern web technologies.
+StayInn is a high-performance, strategic management platform designed to streamline hostel operations for Wardens, Administrators, and Residents. Developed with a focus on "Strategic Command," the application replaces legacy manual tracking with real-time intelligence and visual analytics.
 
-## Features
+## 🚀 Key Functionalities
 
-- Role-based access control (Students, Wardens, Admins, Security Staff)
-- Real-time notifications and updates
-- QR code-based outing passes
-- Interactive dashboards with analytics
-- Mobile-responsive design
-- Dark/Light mode support
-- Real-time status updates
+### 1. Executive Warden Dashboard
+The central command center provides wardens with an immediate overview of hostel health.
+- **Priority Feed**: Real-time alerts for pending complaints and outing requests.
+- **Strategic Analytics**: High-level summaries of room occupancy and attendance trends.
+- **Action Gateway**: Quick-access controls for managing daily operations.
 
-## Tech Stack
+### 2. Room Allocation Intelligence
+A sophisticated visual engine for managing student housing.
+- **Building Visualization**: A 5-floor interactive map (8 rooms per floor) showing real-time occupancy.
+- **Optimal Filling Logic**: Ensures floor-by-floor room saturation (up to 4 students per room) to maintain hostel order.
+- **Resident Mapping**: Direct links to resident portfolios for every allocated bed.
 
-- Backend: Django 4.x
-- Frontend: Tailwind CSS, Alpine.js
-- Database: SQLite (default)
-- Authentication: Django Custom User Model
-- Real-time: Django Channels
-- API: Django REST Framework
+### 3. Attendance Auditing (2.0)
+Advanced numerical tracking for precise student monitoring.
+- **Period-Based Tracking**: Moves beyond simple "Present/Absent" to track specific periods attended vs. total held.
+- **Historical Audit Feed**: A precision date-selector allows managers to audit attendance data for any specific day in the past.
+- **Resident History**: Individual student portfolios showing cumulative presence statistics.
 
-## Installation
+### 4. Complaint Evidence Dossier
+A streamlined facility maintenance and resident satisfaction system.
+- **Visual Evidence**: Students can upload high-resolution photo evidence with their complaints.
+- **Warden Review Portal**: Wardens receive a "Verified Evidence" feed to prioritize repairs and facility issues.
+- **Status Workflows**: Transparent tracking from "Pending" to "Resolved" with official resolution notes.
 
-1. Clone the repository
-2. Create a virtual environment:
+### 5. Access Control & Identity Enrollment
+High-security entry points with a premium user experience.
+- **Executive Portals**: Redesigned, high-impact Login and Registration gateways.
+- **Role-Based Access**: Specialized views for Wardens (Control) and Students (Portability).
+
+---
+
+## 🛠 Tech Stack
+- **Framework**: Django (Python)
+- **Styling**: Tailwind CSS (Executive High-Contrast Palette)
+- **Interactions**: Alpine.js & Vanilla JavaScript
+- **Database**: SQLite / PostgreSQL
+- **Media**: Integrated Photo Storage for Evidence & Profiles
+
+## 📦 Installation & Setup
+
+1. **Clone the repository**:
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate
+   git clone https://github.com/PanduNamburi/Hostel-Management.git
    ```
-3. Install dependencies:
+
+2. **Initialize Environment**:
    ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    pip install -r requirements.txt
    ```
-4. Set up environment variables:
-   ```bash
-   cp .env.example .env
-   ```
-5. Run migrations:
+
+3. **Database Setup**:
    ```bash
    python manage.py migrate
    ```
-6. Create a superuser:
-   ```bash
-   python manage.py createsuperuser
-   ```
-7. Run the development server:
+
+4. **Launch Platform**:
    ```bash
    python manage.py runserver
    ```
 
-## Project Structure
-
-```
-HostelManagement/
-├── accounts/           # Custom user model and auth
-├── students/           # Student-specific models and views
-├── wardens/           # Warden functionalities
-├── admin_panel/       # Admin controls
-├── security/          # Security gate panel
-├── core/              # Shared utilities, announcements
-├── templates/         # Tailwind-powered templates
-├── static/            # Tailwind CSS, JS, images
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-This project is licensed under the MIT License. # Hostel-Management
+---
+*StayInn - Engineered for modern hostel excellence.*
