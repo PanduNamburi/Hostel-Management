@@ -1,0 +1,200 @@
+{% extends 'base/base.html' %}
+{% block title %}Visual Room Booking{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Header -->
+    <div class="mb-10 text-center">
+        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">Hostel Building Layout</h1>
+        <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">Assigning room for: <span class="font-bold text-indigo-600 dark:text-indigo-400 underline decoration-2 underline-offset-4">{{ student.get_full_name|default:student.username }}</span></p>
+    </div>
+
+    <!-- Hidden Form -->
+    <form id="allocation-form" method="post" action="{% url 'admin_panel:process_room_allocation' %}" class="hidden">
+        {% csrf_token %}
+        <input type="hidden" name="student_id" value="{{ student.id }}">
+        <input type="hidden" name="room_id" id="selected-room-id" value="">
+    </form>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Sidebar Navigation & Legend -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Room Status</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center group">
+                        <div class="w-8 h-8 bg-emerald-50 border-2 border-emerald-400 dark:bg-emerald-900/40 dark:border-emerald-500 rounded-lg mr-3 shadow-sm group-hover:scale-110 transition-transform"></div>
+                        <div>
+                            <span class="block text-sm font-bold text-gray-900 dark:text-white">Available</span>
+                            <span class="text-xs text-gray-500">Ready for allocation</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center group">
+                        <div class="w-8 h-8 bg-rose-50 border-2 border-rose-200 dark:bg-rose-900/20 dark:border-rose-800/50 rounded-lg mr-3 shadow-sm opacity-60"></div>
+                        <div>
+                            <span class="block text-sm font-bold text-gray-900 dark:text-white">Full</span>
+                            <span class="text-xs text-gray-500">No beds remaining</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center group">
+                        <div class="w-8 h-8 bg-blue-50 border-2 border-blue-500 dark:bg-blue-900/40 dark:border-blue-400 rounded-lg mr-3 shadow-md shadow-blue-500/20 animate-pulse"></div>
+                        <div>
+                            <span class="block text-sm font-bold text-gray-900 dark:text-white">Selected</span>
+                            <span class="text-xs text-gray-500">Currently chosen</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-indigo-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                <div class="relative z-10">
+                    <h3 class="text-lg font-bold mb-2">Instructions</h3>
+                    <ul class="text-sm text-indigo-100 space-y-2 list-disc list-inside">
+                        <li>Select an available room (Green).</li>
+                        <li>Check student occupancy dots.</li>
+                        <li>Click "Confirm" in the bottom bar.</li>
+                    </ul>
+                </div>
+                <svg class="absolute -right-8 -bottom-8 w-32 h-32 text-indigo-500 opacity-20" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Main Building View -->
+        <div class="lg:col-span-3">
+            <div class="space-y-8 pb-32">
+                {% for block, floors in grouped_rooms.items %}
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-black text-gray-900 dark:text-white">Building {{ block }}</h2>
+                        <div class="h-1 flex-1 mx-6 bg-gradient-to-r from-gray-200 to-transparent dark:from-gray-700"></div>
+                    </div>
+
+                    <div class="flex flex-col-reverse gap-6">
+                        {% for floor, rooms in floors.items %}
+                        <div class="relative group">
+                            <!-- Floor Label -->
+                            <div class="absolute -left-12 top-1/2 -translate-y-1/2 -rotate-90 origin-center">
+                                <span class="text-xs font-black text-gray-400 dark:text-gray-500 tracking-tighter uppercase whitespace-nowrap">Level {{ floor }}</span>
+                            </div>
+
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 group-hover:shadow-md transition-shadow">
+                                <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-4">
+                                    {% for room in rooms %}
+                                    <button type="button" 
+                                            onclick="{% if room.is_available %}selectRoom('{{ room.id }}', '{{ room.room_number }}'){% endif %}"
+                                            id="room-card-{{ room.id }}"
+                                            class="relative p-4 rounded-2xl border-2 transition-all duration-300 transform active:scale-95 group/room
+                                            {% if room.is_available %}
+                                                bg-emerald-50/50 border-emerald-400/30 text-emerald-900 hover:border-emerald-500 hover:bg-emerald-50 dark:bg-emerald-900/10 dark:border-emerald-600/30 dark:text-emerald-300
+                                            {% else %}
+                                                bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-900/50 dark:border-gray-800 dark:text-gray-600
+                                            {% endif %}">
+                                        
+                                        <div class="flex flex-col items-center">
+                                            <span class="text-xs font-bold opacity-60 mb-1">Room</span>
+                                            <span class="text-xl font-black leading-none">{{ room.room_number }}</span>
+                                            
+                                            <!-- Student Occupancy Dots -->
+                                            <div class="mt-4 flex gap-1 items-center justify-center">
+                                                {% for i in "1234" %}
+                                                    <div class="w-1.5 h-1.5 rounded-full transition-colors duration-500
+                                                        {% if forloop.counter <= room.occupancy %}
+                                                            bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]
+                                                        {% else %}
+                                                            bg-gray-300 dark:bg-gray-600
+                                                        {% endif %}">
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                            <span class="text-[10px] font-bold mt-2 opacity-50">{{ room.occupancy }}/{{ room.capacity }}</span>
+                                        </div>
+
+                                        {% if not room.is_available %}
+                                        <div class="absolute inset-0 bg-white/40 dark:bg-black/20 rounded-2xl flex items-center justify-center backdrop-blur-[1px]">
+                                            <svg class="w-6 h-6 text-gray-400 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                        </div>
+                                        {% endif %}
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-20 bg-white dark:bg-gray-800 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                    <svg class="mx-auto h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2l-2-2m0 0l-2-2m2 2H5m14 0v-3a2 2 0 00-2-2H9a2 2 0 00-2 2v3" /></svg>
+                    <h3 class="mt-4 text-xl font-bold text-gray-900 dark:text-white">Initializing Building...</h3>
+                    <p class="mt-2 text-gray-500">Generating 5 floors of hostel rooms.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Drawer -->
+    <div id="confirmation-bar" class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-[0_-10px_50px_rgba(0,0,0,0.15)] transform translate-y-full transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-50">
+        <div class="max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between">
+            <div class="flex items-center space-x-6 mb-6 sm:mb-0">
+                <div class="p-3 bg-indigo-50 dark:bg-indigo-900/40 rounded-2xl">
+                    <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                <div>
+                    <span class="block text-xs font-black text-indigo-500 uppercase tracking-widest mb-1">Target Placement</span>
+                    <span class="text-3xl font-black text-gray-900 dark:text-white" id="selected-room-display">--</span>
+                    <span class="text-sm text-gray-400 ml-2">in Building A</span>
+                </div>
+            </div>
+            <div class="flex gap-4 w-full sm:w-auto">
+                <button type="button" onclick="cancelSelection()" class="flex-1 sm:flex-none px-8 py-4 text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    Discard
+                </button>
+                <button type="button" onclick="submitAllocation()" class="flex-1 sm:flex-none px-12 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-indigo-600/20 transform hover:-translate-y-1 transition-all">
+                    Finalize Assignment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentSelectedRoomId = null;
+
+    function selectRoom(roomId, roomNumber) {
+        if (currentSelectedRoomId) {
+            const prevCard = document.getElementById('room-card-' + currentSelectedRoomId);
+            prevCard.classList.remove('border-blue-500', 'bg-blue-50', 'ring-4', 'ring-blue-500/10', 'dark:border-blue-400', 'dark:bg-blue-900/40');
+            prevCard.classList.add('border-emerald-400/30', 'bg-emerald-50/50', 'dark:border-emerald-600/30', 'dark:bg-emerald-900/10');
+        }
+
+        currentSelectedRoomId = roomId;
+        const newCard = document.getElementById('room-card-' + roomId);
+        newCard.classList.remove('border-emerald-400/30', 'bg-emerald-50/50', 'dark:border-emerald-600/30', 'dark:bg-emerald-900/10');
+        newCard.classList.add('border-blue-500', 'bg-blue-50', 'ring-4', 'ring-blue-500/10', 'dark:border-blue-400', 'dark:bg-blue-900/40');
+
+        document.getElementById('selected-room-id').value = roomId;
+        document.getElementById('selected-room-display').innerText = 'Room ' + roomNumber;
+        document.getElementById('confirmation-bar').classList.remove('translate-y-full');
+    }
+
+    function cancelSelection() {
+        if (currentSelectedRoomId) {
+            const prevCard = document.getElementById('room-card-' + currentSelectedRoomId);
+            prevCard.classList.remove('border-blue-500', 'bg-blue-50', 'ring-4', 'ring-blue-500/10', 'dark:border-blue-400', 'dark:bg-blue-900/40');
+            prevCard.classList.add('border-emerald-400/30', 'bg-emerald-50/50', 'dark:border-emerald-600/30', 'dark:bg-emerald-900/10');
+            
+            currentSelectedRoomId = null;
+            document.getElementById('confirmation-bar').classList.add('translate-y-full');
+        }
+    }
+
+    function submitAllocation() {
+        if (currentSelectedRoomId) {
+            document.getElementById('allocation-form').submit();
+        }
+    }
+</script>
+{% endblock %}
+

@@ -1,0 +1,59 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">All Students</h1>
+<div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-x-auto border border-gray-200 dark:border-gray-700">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+            <tr>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Student Profile</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Total Classes Held</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Classes Attended</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-wider">Attendance %</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            {% for student in students %}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="font-semibold text-sm text-gray-900 dark:text-white">{{ student.get_full_name|default:student.username }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ student.email }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ student.total_held }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600 dark:text-blue-400">
+                    {{ student.total_attended }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    {% if student.attendance_percentage >= 75 %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                            {{ student.attendance_percentage }}%
+                        </span>
+                    {% elif student.attendance_percentage >= 60 %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                            {{ student.attendance_percentage }}%
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                            {{ student.attendance_percentage }}%
+                        </span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <a href="{% url 'attendance:student_attendance_sheet' student.id %}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                        View Sheet
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                    No students currently enrolled in the system.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

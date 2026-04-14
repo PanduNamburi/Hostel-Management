@@ -1,0 +1,56 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Welcome - Hostel Management{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Welcome to Hostel Management System
+        </h1>
+        <p class="text-lg text-gray-600 dark:text-gray-400">
+            A comprehensive solution for managing hostel operations efficiently
+        </p>
+    </div>
+
+    {% if not user.is_authenticated %}
+    <div class="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Get Started</h2>
+        <div class="flex justify-center space-x-4">
+            <a href="{% url 'accounts:login' %}" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded">
+                Login
+            </a>
+            <a href="{% url 'accounts:register' %}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                Register
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Outing Management</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                Request and manage outing passes with ease. Track status and get timely approvals.
+            </p>
+            <a href="{% url 'outings:list' %}" class="text-primary-600 hover:text-primary-700">Learn more →</a>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Complaint System</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                Submit and track complaints. Get timely resolutions to your concerns.
+            </p>
+            <a href="{% url 'complaints:list' %}" class="text-primary-600 hover:text-primary-700">Learn more →</a>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Attendance Tracking</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                View and manage attendance records. Stay updated with your attendance status.
+            </p>
+            <a href="{% url 'attendance:list' %}" class="text-primary-600 hover:text-primary-700">Learn more →</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

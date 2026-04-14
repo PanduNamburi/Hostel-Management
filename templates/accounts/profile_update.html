@@ -1,0 +1,84 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Update Profile - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                Update Profile
+            </h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+                Update your personal information.
+            </p>
+        </div>
+        <div class="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:px-6">
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-4">
+                        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Email
+                        </label>
+                        <div class="mt-1">
+                            {{ form.email }}
+                        </div>
+                        {% if form.email.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="sm:col-span-4">
+                        <label for="phone_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Phone Number
+                        </label>
+                        <div class="mt-1">
+                            {{ form.phone_number }}
+                        </div>
+                        {% if form.phone_number.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.phone_number.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="sm:col-span-6">
+                        <label for="profile_picture" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Profile Picture
+                        </label>
+                        <div class="mt-1 flex items-center">
+                            <span class="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+                                {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="h-full w-full object-cover">
+                                {% else %}
+                                <svg class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                {% endif %}
+                            </span>
+                            <div class="ml-5">
+                                {{ form.profile_picture }}
+                            </div>
+                        </div>
+                        {% if form.profile_picture.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.profile_picture.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <a href="{% url 'accounts:profile' %}"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

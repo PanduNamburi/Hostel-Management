@@ -1,0 +1,153 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Roll Call Intelligence | Hostel Management{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Premium Header -->
+        <div class="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+                <h1 class="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Intelligence Feed</h1>
+                <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">Viewing records for <span class="text-indigo-600 dark:text-indigo-400 font-black">{{ selected_date|date:"F j, Y" }}</span></p>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+                <form method="GET" class="flex items-center bg-white dark:bg-gray-800 rounded-2xl p-2 shadow-sm border border-gray-100 dark:border-gray-700">
+                    <input type="date" name="date" value="{{ selected_date_iso }}" class="bg-transparent border-0 text-xs font-black text-gray-600 dark:text-gray-400 focus:ring-0 uppercase tracking-widest px-4">
+                    <button type="submit" class="p-3 bg-gray-50 dark:bg-gray-900/40 rounded-xl hover:bg-gray-100 transition-colors">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
+                </form>
+                {% if can_mark_attendance %}
+                <a href="{% url 'attendance:mark' %}" class="inline-flex items-center px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-2xl shadow-lg shadow-indigo-500/20 transition-all uppercase tracking-widest">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    New Roll Call
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- High Impact Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 group relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-50 dark:bg-indigo-900/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Total Classes Held</p>
+                    <h3 class="text-3xl font-black text-gray-900 dark:text-white">{{ total_classes }}</h3>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 group relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-50 dark:bg-emerald-900/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Total Present</p>
+                    <h3 class="text-3xl font-black text-gray-900 dark:text-white">{{ total_present }}</h3>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 group relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-rose-50 dark:bg-rose-900/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">Total Absent</p>
+                    <h3 class="text-3xl font-black text-gray-900 dark:text-white">{{ total_absent }}</h3>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 group relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-50 dark:bg-blue-900/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                <div class="relative z-10 text-right">
+                    <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Attendance Rate</p>
+                    <h3 class="text-3xl font-black {% if attendance_percentage < 75 %}text-rose-600{% else %}text-emerald-600{% endif %}">{{ attendance_percentage }}%</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Data Table Container -->
+        {% if page_obj %}
+        <div class="bg-white dark:bg-gray-800 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
+                    <thead class="bg-gray-50/80 dark:bg-gray-900/40">
+                        <tr>
+                            {% if not is_student %}
+                            <th class="px-8 py-5 text-left text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Resident</th>
+                            {% endif %}
+                            <th class="px-8 py-5 text-left text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Date</th>
+                            <th class="px-8 py-5 text-left text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Marked By</th>
+                            <th class="px-8 py-5 text-center text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Attended</th>
+                            <th class="px-8 py-5 text-center text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Absent</th>
+                            <th class="px-8 py-5 text-center text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Rate</th>
+                            <th class="px-8 py-5 text-right text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50 dark:divide-gray-700/50">
+                        {% for record in page_obj %}
+                        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-900/20 transition-colors">
+                            {% if not is_student %}
+                            <td class="px-8 py-5 whitespace-nowrap">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase">
+                                        {{ record.student.username|slice:":2" }}
+                                    </div>
+                                    <div class="text-sm font-bold text-gray-900 dark:text-white">
+                                        {{ record.student.get_full_name|default:record.student.username }}
+                                    </div>
+                                </div>
+                            </td>
+                            {% endif %}
+                            <td class="px-8 py-5 whitespace-nowrap">
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ record.date|date:"M d, Y" }}</span>
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap">
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">
+                                    {% if record.marked_by %}{{ record.marked_by.username }}{% else %}System{% endif %}
+                                </span>
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap text-center">
+                                <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">{{ record.present_periods }}</span>
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap text-center">
+                                <span class="text-sm font-black {% if record.absent_periods > 0 %}text-rose-600{% else %}text-gray-300 dark:text-gray-600{% endif %}">
+                                    {{ record.absent_periods }}
+                                </span>
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap text-center">
+                                <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black {% if record.attendance_percentage < 75 %}bg-rose-50 text-rose-600 dark:bg-rose-900/20{% else %}bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20{% endif %}">
+                                    {{ record.attendance_percentage }}%
+                                </div>
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap text-right space-x-2">
+                                <a href="{% url 'attendance:detail' record.pk %}" class="text-[10px] font-black text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 uppercase tracking-widest transition-colors">View</a>
+                                {% if can_mark_attendance %}
+                                <a href="{% url 'attendance:update' record.pk %}" class="text-[10px] font-black text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 uppercase tracking-widest transition-colors">Edit</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Modern Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="bg-gray-50/50 dark:bg-gray-900/20 px-8 py-6 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <div class="text-xs font-black text-gray-400 uppercase tracking-widest">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </div>
+                <div class="flex space-x-2">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-colors">Previous</a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="text-center py-24 bg-white dark:bg-gray-800 rounded-[3rem] border-2 border-dashed border-gray-100 dark:border-gray-700">
+            <p class="text-sm font-black text-gray-400 uppercase tracking-widest">No Intelligence Records Found</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

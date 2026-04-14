@@ -1,0 +1,102 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Complaint Management | Intelligence Portfolio{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Executive Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+            <div class="flex items-center space-x-6">
+                <div class="w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 dark:border-gray-700">
+                    <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2_0 01-2 2z"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{{ complaint.title }}</h1>
+                    <p class="text-sm text-gray-500 font-bold uppercase tracking-widest mt-1">
+                        Ref# {{ complaint.id|stringformat:"05d" }} &bull; 
+                        <span class="{% if complaint.status == 'pending' %}text-yellow-600{% elif complaint.status == 'resolved' %}text-emerald-600{% else %}text-indigo-600{% endif %}">
+                            {{ complaint.get_status_display|upper }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                {% if is_warden and complaint.status == 'pending' %}
+                <a href="{% url 'complaints:resolve' complaint.pk %}" class="px-8 py-3 bg-indigo-600 text-white text-[10px] font-black rounded-full hover:bg-indigo-700 transition-all uppercase tracking-widest shadow-lg shadow-indigo-500/20">Resolve Case</a>
+                {% endif %}
+                <a href="{% url 'complaints:list' %}" class="px-8 py-3 bg-white dark:bg-gray-800 text-gray-500 text-[10px] font-black rounded-full border border-gray-100 dark:border-gray-700 hover:bg-gray-50 transition-all uppercase tracking-widest">Analytics List</a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Content Column -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Core Intelligence Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-[3rem] p-10 border border-gray-100 dark:border-gray-700 shadow-sm">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6">Subjective Intelligence</h3>
+                    <div class="prose dark:prose-invert max-w-none">
+                        <p class="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">{{ complaint.description }}</p>
+                    </div>
+
+                    {% if complaint.photo %}
+                    <div class="mt-10 pt-10 border-t border-gray-50 dark:border-gray-700">
+                        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6">Visual Evidence</h3>
+                        <div class="rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-lg">
+                            <img src="{{ complaint.photo.url }}" alt="Evidence for {{ complaint.title }}" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-700">
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Resolution Card (If exists) -->
+                {% if complaint.resolution_notes %}
+                <div class="bg-emerald-50 dark:bg-emerald-900/10 rounded-[3rem] p-10 border border-emerald-100 dark:border-emerald-800/40">
+                    <h3 class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] mb-4">Official Resolution Notes</h3>
+                    <p class="text-emerald-800 dark:text-emerald-300 font-medium italic">"{{ complaint.resolution_notes }}"</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Meta Column -->
+            <div class="space-y-8">
+                <!-- Metadata Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-[3rem] p-10 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-50 dark:bg-indigo-900/10 rounded-full"></div>
+                    <div class="relative z-10">
+                        <h3 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-8">Metadata Analytics</h3>
+                        
+                        <div class="space-y-8">
+                            <div>
+                                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Priority Factor</p>
+                                <div class="inline-flex items-center px-3 py-1 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                    {{ complaint.get_priority_display }}
+                                </div>
+                            </div>
+
+                            <div>
+                                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Source Resident</p>
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">{{ complaint.created_by.get_full_name|default:complaint.created_by.username }}</p>
+                            </div>
+
+                            <div>
+                                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Submission Date</p>
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">{{ complaint.created_at|date:"M j, Y &bull; g:i a" }}</p>
+                            </div>
+
+                            {% if complaint.assigned_to %}
+                            <div>
+                                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Executive Assigner</p>
+                                <p class="text-sm font-bold text-indigo-600 dark:text-indigo-400">{{ complaint.assigned_to.get_full_name|default:complaint.assigned_to.username }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

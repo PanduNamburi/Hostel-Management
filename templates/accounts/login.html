@@ -1,0 +1,92 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Authentication Portal | Hostel Intelligence{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <!-- Logo Section -->
+        <div class="flex flex-col items-center">
+            <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-500/20 mb-6 transform -rotate-6">
+                <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <h2 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Access Control</h2>
+            <p class="mt-2 text-sm text-gray-400 font-bold uppercase tracking-widest">Warden & Resident Gateway</p>
+        </div>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-gray-50/50 dark:bg-gray-800/40 py-10 px-8 border border-gray-100 dark:border-gray-700/50 rounded-[2.5rem] backdrop-blur-xl sm:px-10">
+            <form class="space-y-6" method="POST">
+                {% csrf_token %}
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="username" class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1 px-1">Identifier</label>
+                        <input id="username" name="username" type="text" required
+                            class="appearance-none rounded-xl relative block w-full px-4 py-3 bg-white dark:bg-gray-900/60 border-0 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 placeholder-gray-400 sm:text-sm shadow-sm transition-all"
+                            placeholder="Username">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1 px-1">Credential</label>
+                        <input id="password" name="password" type="password" required
+                            class="appearance-none rounded-xl relative block w-full px-4 py-3 bg-white dark:bg-gray-900/60 border-0 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 placeholder-gray-400 sm:text-sm shadow-sm transition-all"
+                            placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between px-1">
+                    <div class="flex items-center">
+                        <input id="remember_me" name="remember_me" type="checkbox"
+                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded-md">
+                        <label for="remember_me" class="ml-2 block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                            Preserve Session
+                        </label>
+                    </div>
+
+                    <div class="text-[10px] font-black uppercase tracking-widest">
+                        <a href="{% url 'accounts:password_reset' %}" class="text-indigo-600 hover:text-indigo-500">
+                            Recover Key
+                        </a>
+                    </div>
+                </div>
+
+                {% if form.errors %}
+                <div class="rounded-xl bg-rose-50 dark:bg-rose-900/20 p-4 border border-rose-100 dark:border-rose-900/40">
+                    <div class="flex">
+                        <div class="ml-3">
+                            <h3 class="text-[10px] font-black text-rose-800 dark:text-rose-400 uppercase tracking-widest">
+                                Verification Error
+                            </h3>
+                            <div class="mt-2 text-xs text-rose-700 dark:text-rose-300">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <p class="font-medium">&bull; {{ error }}</p>
+                                    {% endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div>
+                    <button type="submit"
+                        class="w-full flex justify-center py-4 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-2xl shadow-lg shadow-indigo-500/20 transition-all uppercase tracking-widest transform hover:scale-[1.02]">
+                        Establish Connection
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-8 pt-8 border-t border-gray-100 dark:border-gray-700/50">
+                <p class="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                    No Credentials? 
+                    <a href="{% url 'accounts:register' %}" class="text-indigo-600 hover:text-indigo-500 ml-1">Request Registration</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

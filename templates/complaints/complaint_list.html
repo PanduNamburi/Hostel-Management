@@ -1,0 +1,115 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Complaint Analytics | Hostel Intelligence{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Premium Header -->
+        <div class="mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+                <h1 class="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Complaint Dossier</h1>
+                <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">Monitoring resident satisfaction and facility maintenance requests.</p>
+            </div>
+            {% if user.role == 'student' %}
+            <a href="{% url 'complaints:create' %}" class="inline-flex items-center px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-2xl shadow-lg shadow-indigo-500/20 transition-all uppercase tracking-widest transform hover:scale-[1.02]">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                File New Case
+            </a>
+            {% endif %}
+        </div>
+
+        {% if page_obj %}
+        <div class="bg-white dark:bg-gray-800 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-50 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-900/40">
+                        <tr>
+                            <th scope="col" class="px-8 py-5 text-left text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Case Particulars</th>
+                            <th scope="col" class="px-8 py-5 text-center text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Priority</th>
+                            <th scope="col" class="px-8 py-5 text-center text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Status</th>
+                            <th scope="col" class="px-8 py-5 text-left text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Evidence</th>
+                            <th scope="col" class="px-8 py-5 text-right text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Executive Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50 dark:divide-gray-700">
+                        {% for complaint in page_obj %}
+                        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-900/20 transition-all">
+                            <td class="px-8 py-5 whitespace-nowrap">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-gray-900 dark:text-white">{{ complaint.title }}</span>
+                                    <span class="text-[10px] text-gray-400 font-medium uppercase tracking-tighter mt-1">{{ complaint.created_at|date:"M d, Y" }} &bull; By {{ complaint.created_by.username }}</span>
+                                </div>
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap text-center">
+                                <span class="px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest
+                                    {% if complaint.priority == 'urgent' %}bg-rose-50 text-rose-600 dark:bg-rose-900/20
+                                    {% elif complaint.priority == 'high' %}bg-orange-50 text-orange-600 dark:bg-orange-900/20
+                                    {% else %}bg-blue-50 text-blue-600 dark:bg-blue-900/20{% endif %}">
+                                    {{ complaint.priority|upper }}
+                                </span>
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap text-center">
+                                <span class="px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest
+                                    {% if complaint.status == 'pending' %}bg-yellow-50 text-yellow-600 dark:bg-yellow-900/20
+                                    {% elif complaint.status == 'resolved' %}bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20
+                                    {% else %}bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20{% endif %}">
+                                    {{ complaint.get_status_display|upper }}
+                                </span>
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap">
+                                {% if complaint.photo %}
+                                <div class="flex items-center text-emerald-600 dark:text-emerald-400">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    <span class="text-[10px] font-black uppercase tracking-tighter">Verified</span>
+                                </div>
+                                {% else %}
+                                <span class="text-[10px] font-black text-gray-300 dark:text-gray-600 uppercase tracking-tighter">No Evidence</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap text-right">
+                                <div class="flex items-center justify-end space-x-3">
+                                    <a href="{% url 'complaints:detail' complaint.pk %}" class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 uppercase tracking-widest transition-colors">View Details</a>
+                                    {% if user.role == 'warden' and complaint.status == 'pending' %}
+                                    <a href="{% url 'complaints:resolve' complaint.pk %}" class="px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[9px] font-black rounded-xl hover:bg-indigo-100 transition-all uppercase tracking-widest">Resolve</a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Premium Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="px-8 py-6 bg-gray-50/50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                    Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} Records
+                </p>
+                <div class="flex space-x-2">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-500 hover:bg-gray-50 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-500 hover:bg-gray-50 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="text-center py-24 bg-white dark:bg-gray-800 rounded-[3rem] border-2 border-dashed border-gray-100 dark:border-gray-700">
+            <svg class="w-16 h-16 text-gray-200 dark:text-gray-700 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h3 class="text-xl font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Dossier Empty</h3>
+            <p class="mt-2 text-gray-400 dark:text-gray-600">No active maintenance or satisfaction requests detected.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

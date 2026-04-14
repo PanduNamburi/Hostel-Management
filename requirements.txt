@@ -1,0 +1,9 @@
+asgiref
+Django>=4.2,<5.0
+sqlparse
+typing_extensions
+django-tailwind
+django-crispy-forms
+channels
+djangorestframework
+Pillow

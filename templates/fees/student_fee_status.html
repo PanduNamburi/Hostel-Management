@@ -1,0 +1,50 @@
+{% extends 'base/base.html' %}
+{% block title %}My Fee Status{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow rounded-lg p-8 mt-6">
+    <h2 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">My Fee Records</h2>
+    <div class="flex flex-col sm:flex-row sm:space-x-8 mb-6">
+        <div class="flex-1 bg-blue-50 dark:bg-blue-900 rounded-lg p-4 mb-4 sm:mb-0">
+            <div class="text-sm text-blue-700 dark:text-blue-200 font-semibold">Total Fee</div>
+            <div class="text-2xl font-bold text-blue-800 dark:text-blue-100">₹{{ total_fee|floatformat:2 }}</div>
+        </div>
+        <div class="flex-1 bg-green-50 dark:bg-green-900 rounded-lg p-4 mb-4 sm:mb-0">
+            <div class="text-sm text-green-700 dark:text-green-200 font-semibold">Total Paid</div>
+            <div class="text-2xl font-bold text-green-800 dark:text-green-100">₹{{ total_paid|floatformat:2 }}</div>
+        </div>
+        <div class="flex-1 bg-red-50 dark:bg-red-900 rounded-lg p-4">
+            <div class="text-sm text-red-700 dark:text-red-200 font-semibold">Total Due</div>
+            <div class="text-2xl font-bold text-red-800 dark:text-red-100">₹{{ total_due|floatformat:2 }}</div>
+        </div>
+    </div>
+    <h3 class="text-xl font-semibold mt-8 mb-2">Payment History</h3>
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead>
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount Paid</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Payment Date</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-lg text-gray-900 dark:text-white font-medium">
+                    ₹{{ payment.amount|floatformat:2 }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">
+                    {{ payment.payment_date|date:"M d, Y" }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-block px-3 py-1 rounded-full bg-green-100 text-green-800 font-bold">Paid</span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No payments made yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

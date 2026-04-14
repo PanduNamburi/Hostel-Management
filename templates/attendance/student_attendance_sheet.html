@@ -1,0 +1,81 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Resident History | {{ student.username }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+            <div class="flex items-center space-x-6">
+                <div class="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/30 rounded-[2rem] flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-2xl font-black shadow-xl shadow-indigo-500/5">
+                    {{ student.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{{ student.get_full_name|default:student.username }}'s Record</h1>
+                    <p class="text-lg text-gray-500 uppercase tracking-widest text-xs font-black mt-1">Academic Attendance Portfolio</p>
+                </div>
+            </div>
+            
+            <a href="{% url 'attendance:list' %}" class="px-8 py-3 bg-white dark:bg-gray-800 text-gray-500 text-[10px] font-black rounded-full border border-gray-100 dark:border-gray-700 hover:bg-gray-50 transition-all uppercase tracking-widest shadow-sm">Back to Analytics</a>
+        </div>
+
+        {% if attendance_records %}
+        <div class="bg-white dark:bg-gray-800 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-900/40">
+                        <tr>
+                            <th scope="col" class="px-8 py-5 text-left text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Date</th>
+                            <th scope="col" class="px-8 py-5 text-center text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Attended</th>
+                            <th scope="col" class="px-8 py-5 text-center text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Absent</th>
+                            <th scope="col" class="px-8 py-5 text-left text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Notes</th>
+                            <th scope="col" class="px-8 py-5 text-left text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Marked By</th>
+                            <th scope="col" class="px-8 py-5 text-center text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50 dark:divide-gray-700/50">
+                        {% for record in attendance_records %}
+                        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-900/20 transition-colors">
+                            <td class="px-8 py-5 whitespace-nowrap">
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ record.date|date:"F j, Y" }}</span>
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap text-center">
+                                <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">{{ record.present_periods }}</span>
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap text-center">
+                                <span class="text-sm font-black {% if record.absent_periods > 0 %}text-rose-600{% else %}text-gray-300 dark:text-gray-600{% endif %}">
+                                    {{ record.absent_periods }}
+                                </span>
+                            </td>
+                            <td class="px-8 py-5">
+                                <div class="text-xs text-gray-500 italic max-w-xs truncate" title="{{ record.notes }}">
+                                    {{ record.notes|default:"-" }}
+                                </div>
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap">
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">
+                                    {% if record.marked_by %}{{ record.marked_by.username }}{% else %}System{% endif %}
+                                </span>
+                            </td>
+                            <td class="px-8 py-5 whitespace-nowrap text-center">
+                                <div class="inline-flex items-center px-4 py-1 rounded-full text-[10px] font-black {% if record.attendance_percentage < 75 %}bg-rose-50 text-rose-600 dark:bg-rose-900/20{% else %}bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20{% endif %}">
+                                    {{ record.attendance_percentage|floatformat:0 }}%
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-24 bg-white dark:bg-gray-800 rounded-[3rem] border-2 border-dashed border-gray-100 dark:border-gray-700">
+            <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <p class="text-sm font-black text-gray-400 uppercase tracking-widest">No Historical Data Found</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

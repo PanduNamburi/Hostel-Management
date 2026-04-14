@@ -1,0 +1,52 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Make a Fee Payment{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto bg-white dark:bg-gray-800 shadow rounded-lg p-8 mt-6">
+    <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Make a Fee Payment</h2>
+    <div class="flex flex-col items-center space-y-6">
+        {% if payment_details %}
+            {% if payment_details.qr_code %}
+                <img src="{{ payment_details.qr_code.url }}" alt="PhonePe QR Code" class="w-48 h-48 rounded shadow border border-gray-200 dark:border-gray-700">
+            {% endif %}
+            <div class="w-full">
+                <div class="mb-2">
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">Account Number:</span>
+                    <span class="ml-2 text-gray-700 dark:text-gray-300 select-all">{{ payment_details.account_number }}</span>
+                </div>
+                <div class="mb-2">
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">IFSC Code:</span>
+                    <span class="ml-2 text-gray-700 dark:text-gray-300 select-all">{{ payment_details.ifsc_code }}</span>
+                </div>
+                <div class="mb-2">
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">UPI ID:</span>
+                    <span class="ml-2 text-gray-700 dark:text-gray-300 select-all">{{ payment_details.upi_id }}</span>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-red-500">Payment details are not set. Please contact the hostel office.</p>
+        {% endif %}
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">Scan the QR code with PhonePe or any UPI app, or use the details above to make your payment.</p>
+    </div>
+    {% if message %}
+        <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">{{ message }}</div>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data" class="w-full mt-6">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="block text-gray-700 dark:text-gray-200 font-semibold mb-2">Amount Paid (₹):</label>
+            <input type="number" name="amount" step="0.01" min="1" required class="w-full rounded border-gray-300 dark:bg-gray-700 dark:text-white px-3 py-2">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 dark:text-gray-200 font-semibold mb-2">Transaction ID / Reference:</label>
+            <input type="text" name="transaction_id" required class="w-full rounded border-gray-300 dark:bg-gray-700 dark:text-white px-3 py-2">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 dark:text-gray-200 font-semibold mb-2">Upload Payment Proof (screenshot):</label>
+            <input type="file" name="payment_proof" accept="image/*" required class="w-full rounded border-gray-300 dark:bg-gray-700 dark:text-white px-3 py-2">
+        </div>
+        <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded font-semibold">Submit Payment</button>
+    </form>
+</div>
+{% endblock %} 

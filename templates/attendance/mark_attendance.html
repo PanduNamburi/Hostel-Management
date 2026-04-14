@@ -1,0 +1,86 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Bulk Attendance Marking | Hostel Intelligence{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header Section -->
+        <div class="mb-10">
+            <h1 class="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Bulk Attendance Control</h1>
+            <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">Marking attendance for all residents for today's roll call.</p>
+        </div>
+
+        <form method="POST" class="space-y-8">
+            {% csrf_token %}
+            
+            <!-- Date Selection Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="max-w-xs">
+                    <label for="{{ form.date.id_for_label }}" class="block text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Select Roll Call Date</label>
+                    {{ form.date }}
+                    {% if form.date.errors %}
+                        <p class="mt-2 text-sm text-rose-500 font-medium">{{ form.date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Students List Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="p-8 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/20">
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Resident List</h3>
+                    <div class="flex items-center space-x-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        <span>Total: {{ students|length }} Residents</span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-900/40">
+                            <tr>
+                                <th scope="col" class="px-8 py-4 text-left text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Resident Name</th>
+                                <th scope="col" class="px-8 py-4 text-center text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest w-32">Attended</th>
+                                <th scope="col" class="px-8 py-4 text-center text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest w-32">Total Held</th>
+                                <th scope="col" class="px-8 py-4 text-left text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Internal Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                            {% for student in students %}
+                            <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-900/40 transition-colors">
+                                <td class="px-8 py-5 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="h-10 w-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xs mr-3">
+                                            {{ student.username|slice:":2"|upper }}
+                                        </div>
+                                        <div class="text-sm font-bold text-gray-900 dark:text-white">
+                                            {{ student.get_full_name|default:student.username }}
+                                            <p class="text-[10px] text-gray-400 font-medium uppercase tracking-tighter">{{ student.username }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-5 whitespace-nowrap text-center">
+                                    <input type="number" name="attended_{{ student.id }}" value="8" min="0" class="w-20 mx-auto appearance-none rounded-xl block px-3 py-2 bg-gray-50 dark:bg-gray-900/40 border-2 border-indigo-500/20 text-center text-sm font-black text-indigo-600 dark:text-indigo-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </td>
+                                <td class="px-4 py-5 whitespace-nowrap text-center">
+                                    <input type="number" name="total_held_{{ student.id }}" value="8" min="0" class="w-20 mx-auto appearance-none rounded-xl block px-3 py-2 bg-gray-50 dark:bg-gray-900/40 border-0 text-center text-sm font-bold text-gray-500 focus:ring-2 focus:ring-indigo-500">
+                                </td>
+                                <td class="px-8 py-5">
+                                    <textarea name="notes_{{ student.id }}" rows="1" class="appearance-none rounded-xl relative block w-full px-4 py-2 bg-gray-50 dark:bg-gray-900/40 border-0 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" placeholder="Optional notes..."></textarea>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4">
+                <a href="{% url 'attendance:list' %}" class="px-8 py-4 bg-white dark:bg-gray-800 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white text-xs font-black rounded-2xl border border-gray-100 dark:border-gray-700 transition-colors uppercase tracking-widest">Cancel</a>
+                <button type="submit" class="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-2xl shadow-lg shadow-indigo-500/20 transition-all uppercase tracking-widest">Finalize Roll Call</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
