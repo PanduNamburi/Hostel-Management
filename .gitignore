@@ -1,4 +1,6 @@
 # Python
+# AWS Elastic Beanstalk (local CLI cache only — .ebextensions is tracked)
+.elasticbeanstalk/
 __pycache__/
 *.py[cod]
 *$py.class
